@@ -1,51 +1,98 @@
-<!-- index.html --><!DOCTYPE html><html lang="en">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Anonymous SMS Sender</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #fff;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      color: white;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding: 40px;
+      justify-content: center;
+      min-height: 100vh;
+      margin: 0;
+      padding: 20px;
     }
-    input, textarea, button {
-      padding: 10px;
-      margin: 10px;
-      width: 300px;
+    h1 {
+      margin-bottom: 30px;
+      text-shadow: 0 0 10px rgba(0,0,0,0.3);
+    }
+    input, textarea {
+      width: 320px;
+      max-width: 90vw;
+      padding: 12px 15px;
+      margin-bottom: 20px;
+      border-radius: 8px;
+      border: none;
+      font-size: 1rem;
+      outline: none;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+      resize: vertical;
+    }
+    textarea {
+      min-height: 100px;
     }
     button {
-      cursor: pointer;
-      background-color: #0f0;
+      background-color: #f6ad55; /* soft orange */
+      color: #2d3748;
       border: none;
-      font-weight: bold;
+      padding: 12px 25px;
+      font-weight: 700;
+      font-size: 1rem;
+      border-radius: 8px;
+      cursor: pointer;
+      box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #ed8936; /* darker orange */
+    }
+    #response {
+      margin-top: 20px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      min-height: 1.5em;
+      text-shadow: 0 0 5px rgba(0,0,0,0.5);
     }
   </style>
 </head>
 <body>
   <h1>Anonymous SMS Sender</h1>
-  <input type="text" id="to" placeholder="Receiver's Number (e.g. +8801XXXXXXXXX)"><br>
-  <textarea id="message" placeholder="Your anonymous message"></textarea><br>
+  <input type="text" id="to" placeholder="Receiver's Number (e.g. +8801XXXXXXXXX)" />
+  <textarea id="message" placeholder="Your anonymous message"></textarea>
   <button onclick="sendSMS()">Send SMS</button>
-  <p id="response"></p>  <script>
+  <p id="response"></p>
+
+  <script>
     async function sendSMS() {
-      const to = document.getElementById('to').value;
-      const message = document.getElementById('message').value;
+      const to = document.getElementById('to').value.trim();
+      const message = document.getElementById('message').value.trim();
 
-      const res = await fetch('https://us-central1-the-dream-chaser-project.cloudfunctions.net/sendSMS', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ to, message })
-      });
+      if (!to || !message) {
+        document.getElementById('response').innerText = 'Please enter both number and message.';
+        return;
+      }
 
-      const data = await res.json();
-      document.getElementById('response').innerText = data.success ? 'Message Sent!' : data.error;
+      try {
+        const res = await fetch('https://us-central1-the-dream-chaser-project.cloudfunctions.net/sendSMS', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ to, message }),
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.getElementById('response').innerText = 'Message Sent!';
+        } else {
+          document.getElementById('response').innerText = 'Error: ' + data.error;
+        }
+      } catch (err) {
+        document.getElementById('response').innerText = 'Network error, try again.';
+      }
     }
-  </script></body>
+  </script>
+</body>
 </html>
